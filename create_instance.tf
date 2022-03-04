@@ -1,69 +1,64 @@
 # (C) Copyright 2021 Hewlett Packard Enterprise Development LP
- 
-# create instance will all possible options
-resource "hpegl_vmaas_instance" "tf_instance" {
-  name               = "tf_advanced"
+
+# minimal instance creation
+
+data "hpegl_vmaas_cloud" "cloud" {
+  name = "HPE GreenLake VMaaS Cloud"
+}
+
+data "hpegl_vmaas_group" "default_group" {
+  name = "Default"
+}
+
+data "hpegl_vmaas_layout" "vmware_centos" {
+  name               = "VMware VM with vanilla CentOS"
+  instance_type_code = "glhc-vanilla-centos"
+}
+
+data "hpegl_vmaas_plan" "g1_small" {
+  name = "G1-Small"
+}
+
+data "hpegl_vmaas_datastore" "c_3par" {
+  cloud_id = data.hpegl_vmaas_cloud.cloud.id
+  name     = "Compute-3par-A64G-FC-1TB"
+}
+
+
+data "hpegl_vmaas_cloud_folder" "compute_folder" {
+  cloud_id = data.hpegl_vmaas_cloud.cloud.id
+  name     = "ComputeFolder"
+}
+
+data "hpegl_vmaas_resource_pool" "cluster" {
+  cloud_id = data.hpegl_vmaas_cloud.cloud.id
+  name     = "Cluster"
+}
+
+data "hpegl_vmaas_environment" "dev" {
+  name = "dev"
+}
+
+resource "hpegl_vmaas_instance" "minimal_instance" {
+  name               = "tf_minimal"
   cloud_id           = data.hpegl_vmaas_cloud.cloud.id
   group_id           = data.hpegl_vmaas_group.default_group.id
-  layout_id          = data.hpegl_vmaas_layout.vmware.id
+  layout_id          = data.hpegl_vmaas_layout.vmware_centos.id
   plan_id            = data.hpegl_vmaas_plan.g1_small.id
-  instance_type_code = data.hpegl_vmaas_layout.vmware.instance_type_code
+  instance_type_code = data.hpegl_vmaas_layout.vmware_centos.instance_type_code
   network {
     id = data.hpegl_vmaas_network.blue_net.id
   }
-  network {
-    id = data.hpegl_vmaas_network.green_net.id
-  }
- 
+
   volume {
     name         = "root_vol"
     size         = 5
     datastore_id = data.hpegl_vmaas_datastore.c_3par.id
   }
- 
-  volume {
-    name         = "local_vol"
-    size         = 5
-    datastore_id = data.hpegl_vmaas_datastore.c_3par.id
-  }
- 
-  labels = ["test_label"]
-  tags = {
-    key  = "value"
-    name = "data"
-    some = "random"
-  }
- 
+
   config {
     resource_pool_id = data.hpegl_vmaas_resource_pool.cl_resource_pool.id
-    template_id      = data.hpegl_vmaas_template.vanilla.id
-    no_agent         = true
-    create_user      = true
-    asset_tag        = "vm_tag"
-  }
-  hostname = "tf_host_1"
-  scale    = 2
-  evars = {
-    proxy = "http://address:port"
-  }
-  env_prefix        = "tf_test"
-  power_schedule_id = data.hpegl_vmaas_power_schedule.weekday.id
-  port {
-    name = "nginx"
-    port = 80
-    lb   = "No LB"
+    folder_code      = data.hpegl_vmaas_cloud_folder.compute_folder.code
   }
   environment_code = data.hpegl_vmaas_environment.dev.code
-  # On creating only poweron operation is supported. Upon updation all other
-  # lifecycle operations are permitted.
-  power = "poweron"
-  # Restarts the instance if set to any positive integer.
-  # Restart works only on pre-created instance.`,
-  restart_instance = 1
-  # any update in snapshot will end up to creating new snapshot and existing
-  # snapshot will be still in backend.
-  snapshot {
-    name        = "test_snapshot_1"
-    description = "test snapshot description is optional"
-  }
 }
