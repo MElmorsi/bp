@@ -3,7 +3,7 @@
 # minimal instance creation
 
 data "hpegl_vmaas_cloud" "cloud" {
-  name = "HPE GreenLake VMaaS Cloud"
+  name = "HPE GreenLake VMaaS Cloud-Trial1"
 }
 
 data "hpegl_vmaas_group" "default_group" {
@@ -24,10 +24,18 @@ data "hpegl_vmaas_datastore" "c_3par" {
   name     = "Compute-3par-A64G-FC-1TB"
 }
 
+data "hpegl_vmaas_resource_pool" "cluster" {
+  cloud_id = data.hpegl_vmaas_cloud.cloud.id
+  name     = "Cluster"
+}
 
 data "hpegl_vmaas_cloud_folder" "compute_folder" {
   cloud_id = data.hpegl_vmaas_cloud.cloud.id
   name     = "ComputeFolder"
+}
+
+data "hpegl_vmaas_network" "blue_net" {
+  name = "Blue-Net"
 }
 
 data "hpegl_vmaas_resource_pool" "cluster" {
