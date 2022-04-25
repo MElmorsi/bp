@@ -20,25 +20,21 @@ variable "space" {
 variable "cloud" {
   description = "cloud"
   type        = string
-  default     = "HPE GreenLake VMaaS Cloud-Trial1"
+  default     = "HPE GreenLake VMaaS Cloud-Trial4"
 }
 
 variable "datastore" {
   description = "datastore"
   type        = string
-  default     = "gl2-trial1-Vol0"
+  default     = "gl2-trial4-Vol0"
 }
 
-variable "network" {
-  description = "network"
-  type        = string
-  default     = "Blue-Network"
-}
+
 
 variable "group" {
   description = "group"
   type        = string
-  default     = "Default"
+  default     = "user-infraxx"
 }
 
 variable "resource_pool" {
@@ -68,11 +64,6 @@ variable "service_plan" {
   default = "G1-Medium"
 }
 
-variable "environment" {
-  description = "environment"
-  type        = string
-  default     = "Dev"
-}
 
 variable "template" {
   description = "template"
