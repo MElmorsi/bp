@@ -27,9 +27,7 @@ data "hpegl_vmaas_datastore" "c_3par" {
   name     = var.datastore
 }
 
-data "hpegl_vmaas_network" "network" {
-  name = var.network
-}
+
 
 data "hpegl_vmaas_group" "terraform_group" {
   name = var.group
@@ -50,9 +48,6 @@ data "hpegl_vmaas_plan" "g1_large" {
   name = var.service_plan
 }
 
-data "hpegl_vmaas_environment" "dev" {
-  name = var.environment
-}
 
 data "hpegl_vmaas_template" "vanilla" {
   name = var.template
@@ -76,9 +71,9 @@ resource "hpegl_vmaas_instance" "boot_node" {
   plan_id            = data.hpegl_vmaas_plan.g1_large.id
   instance_type_code = data.hpegl_vmaas_layout.vmware.instance_type_code
   network {
-    id = data.hpegl_vmaas_network.network.id
+    id = 1
   }
-  environment_code = data.hpegl_vmaas_environment.dev.code
+  #environment_code = data.hpegl_vmaas_environment.dev.code
   volume {
     name         = "root_vol"
     size         = 80
@@ -95,6 +90,7 @@ resource "hpegl_vmaas_instance" "boot_node" {
     resource_pool_id = data.hpegl_vmaas_resource_pool.cl_resource_pool.id
     no_agent         = false
     asset_tag        = "vm_tag"
+    create_user      = true
     folder_code      = data.hpegl_vmaas_cloud_folder.compute_folder.code
   }
 }
@@ -107,9 +103,9 @@ resource "hpegl_vmaas_instance" "node1" {
   plan_id            = data.hpegl_vmaas_plan.g1_large.id
   instance_type_code = data.hpegl_vmaas_layout.vmware.instance_type_code
   network {
-    id = data.hpegl_vmaas_network.network.id
+    id = 1
   }
-  environment_code = data.hpegl_vmaas_environment.dev.code
+  #environment_code = data.hpegl_vmaas_environment.dev.code
   volume {
     name         = "root_vol"
     size         = 80
@@ -126,6 +122,7 @@ resource "hpegl_vmaas_instance" "node1" {
     resource_pool_id = data.hpegl_vmaas_resource_pool.cl_resource_pool.id
     no_agent         = false
     asset_tag        = "vm_tag"
+    create_user      = true
     folder_code      = data.hpegl_vmaas_cloud_folder.compute_folder.code
   }
 }
@@ -138,9 +135,9 @@ resource "hpegl_vmaas_instance" "node2" {
   plan_id            = data.hpegl_vmaas_plan.g1_large.id
   instance_type_code = data.hpegl_vmaas_layout.vmware.instance_type_code
   network {
-    id = data.hpegl_vmaas_network.network.id
+    id = 1
   }
-  environment_code = data.hpegl_vmaas_environment.dev.code
+ # environment_code = data.hpegl_vmaas_environment.dev.code
   volume {
     name         = "root_vol"
     size         = 80
@@ -157,6 +154,7 @@ resource "hpegl_vmaas_instance" "node2" {
     resource_pool_id = data.hpegl_vmaas_resource_pool.cl_resource_pool.id
     no_agent         = false
     asset_tag        = "vm_tag"
+    create_user      = true
     folder_code      = data.hpegl_vmaas_cloud_folder.compute_folder.code
   }
 }
