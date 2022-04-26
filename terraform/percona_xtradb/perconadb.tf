@@ -82,7 +82,7 @@ resource "hpegl_vmaas_instance" "boot_node" {
   }
   labels = ["DBaaS"]
   tags = {
-    purpose = "perconadb"
+    Environment = "Development"
   }
   hostname = "${var.instance_name}-${resource.random_integer.random.result}"
   config {
@@ -114,7 +114,7 @@ resource "hpegl_vmaas_instance" "node1" {
   }
   labels = ["DBaaS"]
   tags = {
-    purpose = "perconadb"
+    Environment = "Development"
   }
   hostname = "${var.instance_name}-${resource.random_integer.random.result}"
   config {
@@ -146,7 +146,7 @@ resource "hpegl_vmaas_instance" "node2" {
   }
   labels = ["DBaaS"]
   tags = {
-    purpose = "perconadb"
+    Environment = "Development"
   }
   hostname = "${var.instance_name}-${resource.random_integer.random.result}"
   config {
