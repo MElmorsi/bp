@@ -29,12 +29,17 @@ variable "datastore" {
   default     = "gl2-trial3-Vol0"
 }
 
+variable "network" {
+  description = "network"
+  type        = string
+  default     = "App-Net"
+}
 
 
 variable "group" {
   description = "group"
   type        = string
-  default     = "user-infra46"
+  default     = "user-infraxx"
 }
 
 variable "resource_pool" {
