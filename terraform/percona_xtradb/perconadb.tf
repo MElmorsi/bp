@@ -27,6 +27,9 @@ data "hpegl_vmaas_datastore" "c_3par" {
   name     = var.datastore
 }
 
+data "hpegl_vmaas_network" "network" {
+  name = var.network
+}
 
 
 data "hpegl_vmaas_group" "terraform_group" {
@@ -71,12 +74,12 @@ resource "hpegl_vmaas_instance" "boot_node" {
   plan_id            = data.hpegl_vmaas_plan.g1_large.id
   instance_type_code = data.hpegl_vmaas_layout.vmware.instance_type_code
   network {
-    id = 1
+    id = data.hpegl_vmaas_network.network.id
   }
   #environment_code = data.hpegl_vmaas_environment.dev.code
   volume {
     name         = "root_vol"
-    size         = 80
+    size         = 50
     datastore_id = data.hpegl_vmaas_datastore.c_3par.id
     root         = true
   }
@@ -103,12 +106,12 @@ resource "hpegl_vmaas_instance" "node1" {
   plan_id            = data.hpegl_vmaas_plan.g1_large.id
   instance_type_code = data.hpegl_vmaas_layout.vmware.instance_type_code
   network {
-    id = 1
+    id = data.hpegl_vmaas_network.network.id
   }
   #environment_code = data.hpegl_vmaas_environment.dev.code
   volume {
     name         = "root_vol"
-    size         = 80
+    size         = 50
     datastore_id = data.hpegl_vmaas_datastore.c_3par.id
     root         = true
   }
@@ -135,12 +138,12 @@ resource "hpegl_vmaas_instance" "node2" {
   plan_id            = data.hpegl_vmaas_plan.g1_large.id
   instance_type_code = data.hpegl_vmaas_layout.vmware.instance_type_code
   network {
-    id = 1
+    id = data.hpegl_vmaas_network.network.id
   }
  # environment_code = data.hpegl_vmaas_environment.dev.code
   volume {
     name         = "root_vol"
-    size         = 80
+    size         = 50
     datastore_id = data.hpegl_vmaas_datastore.c_3par.id
     root         = true
   }
