@@ -1,0 +1,72 @@
+---
+- name: Prepare apache cluster node
+  hosts: all
+  become: yes
+  tasks:
+
+    - name: Install the latest version of Apache
+      yum:
+        name: httpd
+        state: latest
+
+    - name:  Apache server status page activate
+      copy:
+        dest: "/etc/httpd/conf.d/status.conf"
+        content: |
+            <Location /server-status>
+               SetHandler server-status
+               Order Deny,Allow
+               Deny from all
+               Allow from 127.0.0.1
+            </Location>
+
+
+    - name: Install the latest version of pacemaker
+      yum:
+        name: "{{ packages }}"
+        state: latest
+      vars:
+        packages:
+          - pacemaker
+          - pcs
+
+    - name: Start service pacemaker, if not started
+      service:
+        name: pcsd
+        state: started
+
+    - name: Enable service pacemaker, and not touch the state
+      service:
+        name: pcsd
+        enabled: yes
+
+    - name: Enable service corosync, and not touch the state
+      service:
+        name: corosync
+        enabled: yes
+
+    - name: Add the user 'johnd' with a specific uid and a primary group of 'admin'
+      user:
+        name: hacluster
+        comment: hacluster
+        password: Pacemaker@123!
+
+    - name: Disable service firewalld, and not touch the state
+      service:
+        name: firewalld
+        enabled: no
+
+    - name: Create motd
+      template:
+        src: "motd.j2"
+        dest: "/etc/motd"
+          {{ansible_eth0.ipv4.address}} {{ansible_hostname}}
+
+    - name:  this task will write the hostname content to tmp file
+      copy:
+        dest: "/tmp/hostname.txt"
+        content: |
+           hostname1
+           hostname2
+          
+
