@@ -61,6 +61,19 @@
         dest: "/tmp/hostname.txt"
         content: |
              {{ansible_eth0.ipv4.address}} {{ansible_hostname}}
+             
+    - command: "echo {{ inventory_hostname }}"
+      register: output
+
+    - name: Copy output to file
+      copy:
+        dest: "/tmp/output.txt"
+        content: |-
+            {% for host in ansible_play_hosts_all %}
+            {{ '###' }}{{ host }}{{ '###' }}
+            {{ hostvars[host]['output']['stdout'] }}
+            {% endfor %}
+      run_once: true
            
           
 
