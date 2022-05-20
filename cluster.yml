@@ -56,17 +56,11 @@
         name: firewalld
         enabled: no
 
-    - name: Create motd
-      template:
-        src: "motd.j2"
-        dest: "/etc/motd"
-          {{ansible_eth0.ipv4.address}} {{ansible_hostname}}
-
     - name:  this task will write the hostname content to tmp file
       copy:
         dest: "/tmp/hostname.txt"
         content: |
-           hostname1
-           hostname2
+             {{ansible_eth0.ipv4.address}} {{ansible_hostname}}
+           
           
 
