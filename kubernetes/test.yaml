@@ -1,0 +1,120 @@
+---
+- name: Prepare a Kubernetes cluster node
+  hosts: all
+  become: yes
+  tasks:
+
+- name: Creating a module container file with content
+  copy:
+      dest: "/etc/modules-load.d/containerd.conf"
+      content: |
+        overlay
+        br_netfilter
+
+- name:  adding overlay modules
+  modprobe:
+      name: overlay
+      state: present
+
+- name:  adding br_netfilter modules
+  modprobe:
+      name: br_netfilter
+      state: present
+
+- name: Creating a kubernetes file with content
+  copy:
+      dest: "/etc/sysctl.d/99-kubernetes-cri.conf"
+      content: |
+         net.bridge.bridge-nf-call-iptables = 1
+         net.ipv4.ip_forward = 1
+         net.bridge.bridge-nf-call-ip6tables = 1
+
+- name: a command to read the new added kernel modules
+  command: sysctl --system
+
+- name: Update apt-get repo and cache
+  apt:
+     update_cache: yes
+     force_apt_get: yes
+     cache_valid_time: 3600
+
+
+- name: Ansible apt install containerd
+  apt:
+    name: containerd
+    state: present
+
+- name: a command to configure containerd
+  command: containerd config default | sudo tee /etc/containerd/config.toml
+
+- name: restart service containerd on ubuntu, in all cases, also issue daemon-reload to pick up config changes
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    name: containerd
+    enabled: yes
+
+- name: a command to turn off swap
+  command: swapoff -a
+
+- name: a command to remove swap from fstab mounted filesystem files
+  command: sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+
+- name: Update apt-get repo and cache
+  apt:
+    update_cache: yes
+    force_apt_get: yes
+    cache_valid_time: 3600
+
+- name: Installing apt packages
+  apt: pkg={{ item }}
+  with_items:
+    - apt-transport-https
+    - curl
+
+- name: Add an Apt signing key, uses whichever key is at the URL
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
+
+
+- name: Add k8s repository
+  apt_repository:
+    repo: "deb http://apt.kubernetes.io/ kubernetes-xenial main"
+    state: present
+    filename: kubernetes
+    update_cache: yes
+
+- name: Update apt-get repo and cache
+  apt:
+    update_cache: yes
+    force_apt_get: yes
+    cache_valid_time: 3600
+
+- name: Installing apt packages
+  apt: pkg={{ item }}
+  with_items:
+    - kubelet=1.23.0-00
+    - kubeadm=1.23.0-00
+    - kubectl=1.23.0-00
+
+- name: Prevent kube from being upgraded
+  dpkg_selections:
+    name:  ['kubelet','kubeadm','kubectl']
+    selection: hold
+
+- name: create the cluster
+  shell: kubeadm init --ignore-preflight-errors=All
+  register: cluster_output
+
+- name: create the flannel network between the cluster nodes
+  shell: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+
+- name: create the flannel RBAC network between the cluster nodes
+  shell: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/k8s-manifests/kube-flannel-rbac.yml
+
+- name: test 2
+  shell: |
+    mkdir -p $HOME/.kube
+    sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+    chown $(id -u):$(id -g) $HOME/.kube/config
